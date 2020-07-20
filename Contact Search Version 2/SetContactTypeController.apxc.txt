@@ -1,0 +1,37 @@
+public class SetContactTypeController {
+    
+    public List<ContactWrapper> contactWrapperList{get; set;}
+    public String searchInput{get; set;}
+    List<Contact> contactList{get; set;}
+    
+    public SetContactTypeController(){
+        
+        contactWrapperList = new List<ContactWrapper>();
+        search();
+        //contactList = [Select Name, Email, Account.Name, Phone, Type__c from Contact];
+        
+    }
+    
+    public void search(){
+        contactWrapperList.clear();
+        if(searchInput != null && searchInput != ''){
+            String temp = '%' +searchInput+ '%';
+            contactList = [Select Name, Email, Account.Name, Phone, Type__c from Contact WHERE FirstName Like :temp OR Email Like :temp];
+        }else{
+            contactList = [Select Name, Email, Account.Name, Phone, Type__c from Contact];
+        }
+        for(Contact con : contactList){
+            contactWrapperList.add(new ContactWrapper(con));
+        }
+    }
+    
+    class ContactWrapper{
+        public Contact contactObj{get; set;}
+        public Boolean isSelected{get; set;}
+        
+        public ContactWrapper(Contact contactObj){
+            this.contactObj = contactObj;
+            isSelected = false;
+        }
+    }
+}

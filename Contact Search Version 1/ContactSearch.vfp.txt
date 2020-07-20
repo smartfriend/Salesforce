@@ -1,0 +1,25 @@
+<apex:page controller="ContactSearchController" tabStyle="Search_Contact__tab">
+    <apex:sectionHeader title="Search" subtitle="Contacts"/>
+    <apex:form >
+        <!-- Search Area on VF Page-->
+        <apex:pageBlock title="Search Contacts">
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Search" action="{!search}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection >
+                Enter Criteria (By Name / By Email):<apex:inputText value="{!searchInput}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        
+        <!-- All Records representation on VF Page-->
+        <apex:pageBlock title="All Records">
+                <apex:pageBlockTable value="{!contactList}" var="items">
+                	<apex:column value="{!items.id}"/>
+                    <apex:column value="{!items.Name}"/>
+                    <apex:column value="{!items.MobilePhone}"/>
+                    <apex:column value="{!items.Email}"/>
+                    <apex:column value="{!items.Languages__c}"/>
+                </apex:pageBlockTable>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

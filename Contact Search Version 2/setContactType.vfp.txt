@@ -1,0 +1,26 @@
+<apex:page controller="SetContactTypeController" tabStyle="Contact">
+    <apex:form>
+        <apex:sectionHeader title="Search" subtitle="Contacts"/>
+        
+        <apex:pageBlock>
+            
+            <apex:inputText value="{!searchInput}" html-placeholder="Search..."/>&nbsp;&nbsp;&nbsp;
+            <apex:commandButton value="Search" action="{!search}"/><br/><br/>
+            
+            <apex:outputLabel value="Select Type"/>&nbsp;&nbsp;&nbsp;
+            
+            <!--<apex:commandButton value="Save" action="{!save}"/><br/>-->
+            
+            <apex:pageBlockTable value="{!contactWrapperList}" var="items">
+                <apex:column headerValue="Action">
+                	<apex:inputCheckbox/>
+                </apex:column>
+            	<apex:column value="{!items.contactObj.name}"/>
+                <apex:column value="{!items.contactObj.email}"/>
+                <apex:column value="{!items.contactObj.account.name}"/>
+                <apex:column value="{!items.contactObj.phone}"/>
+                <apex:column value="{!items.contactObj.type__c}"/>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

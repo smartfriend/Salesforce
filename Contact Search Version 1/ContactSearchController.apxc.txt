@@ -1,0 +1,28 @@
+/*
+Name : ContactSearchController
+Date : 20-07-2020
+Author : Mohit Tyagi
+Description : To search the Contact Object with Name and Email Criteria.
+*/
+
+public class ContactSearchController {
+    
+    // Instance variables
+    public List<Contact> contactList{get; set;}
+    public String searchInput{get; set;}
+    
+    // Constructor
+    public ContactSearchController(){
+        search();
+    }
+    
+    // Method to validate search crieteria
+    public void search(){
+        if(searchInput != null && searchInput != ''){
+            String temp = '%' + searchInput + '%' ;
+            contactList = [Select Id, Name, MobilePhone, Email, Languages__c from Contact where Email LIKE :temp OR Name LIKE :temp];
+        }else{
+            contactList = [Select Id, Name, MobilePhone, Email, Languages__c from Contact];
+        }
+    }
+}
