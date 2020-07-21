@@ -1,0 +1,77 @@
+File
+
+Edit
+
+Debug
+
+Test
+
+Workspace
+
+Help
+
+<
+
+>
+
+Preview
+49
+1
+<!-- To choose subject for the students in Student Object -->
+2
+<apex:page controller="SetStudentSubjectController">
+3
+    <apex:form>
+4
+        <apex:sectionHeader title="Subject" subTitle="Student"/>
+5
+        
+6
+        <apex:inputText value="{!searchInput}" html-placeholder="Search..."/>&nbsp;
+7
+        <apex:commandButton value="Search" action="{!search}"/><br/><br/>
+8
+        
+9
+        <apex:outputText value="Subject"/>&nbsp;&nbsp;
+10
+        <apex:selectList value="{!subjectFromList}" size="1" multiselect="false">
+11
+            <apex:selectOptions value="{!subjectList}"/>
+12
+        </apex:selectList>&nbsp;
+13
+        <apex:commandButton value="Save" action="{!save}"/>
+14
+        
+15
+        <apex:pageBlock>
+16
+            <apex:pageBlockTable value="{!studentWrapperList}" var="wrapperItems">
+17
+                <apex:column headerValue="Action">
+18
+                    <apex:inputCheckbox value="{!wrapperItems.isSelected}"/>
+19
+                </apex:column>
+20
+                <apex:column value="{!wrapperItems.studentObject.Student_Name__c}"/>
+21
+                <apex:column value="{!wrapperItems.studentObject.Student_Class__c}"/>
+22
+                <apex:column value="{!wrapperItems.studentObject.Student_Mobile__c}"/>
+23
+                <apex:column value="{!wrapperItems.studentObject.Email_ID__c}"/>
+24
+                <apex:column value="{!wrapperItems.studentObject.Subjects__c}"/>
+25
+            </apex:pageBlockTable>
+26
+        </apex:pageBlock>
+27
+        
+28
+    </apex:form>
+29
+</apex:page>
+ 

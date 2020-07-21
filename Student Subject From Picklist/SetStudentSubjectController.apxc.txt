@@ -1,0 +1,68 @@
+public class SetStudentSubjectController {
+    
+    //instance variables
+    public List<Student__c> studentList{get; set;}
+    public List<StudentSubjectWrapper> studentWrapperList{get; set;}
+    public String searchInput{get; set;}
+    public String subjectFromList{get; set;}
+    
+    // constructor
+    public SetStudentSubjectController(){
+        studentWrapperList = new List<StudentSubjectWrapper>();
+        search();
+    }
+    
+    // search method
+    public void search(){
+        studentWrapperList.clear();
+        if(searchInput != null && searchInput != ''){
+            //System.debug('Hello');
+            String temp = '%' +searchInput+ '%';
+            studentList = [Select Student_Name__c, Student_Class__c,Student_Mobile__c, Email_ID__c, Subjects__c From Student__c Where Student_Name__c Like : temp];
+        }else{
+            studentList = [Select Student_Name__c, Student_Class__c,Student_Mobile__c, Email_ID__c, Subjects__c From Student__c];
+        }
+        
+        for(Student__c stuList : studentList){
+            studentWrapperList.add(new StudentSubjectWrapper(stuList));
+        }
+    }
+    
+    // save method
+    public void save(){
+        List<Student__c> checkedStudent = new List<Student__c>();
+        for(StudentSubjectWrapper wrapperObject: studentWrapperList){
+            if(wrapperObject.isSelected == true){
+                wrapperObject.studentObject.Subjects__c = subjectFromList;
+                checkedStudent.add(wrapperObject.studentObject);
+            }
+            if(checkedStudent.size() > 0){
+                update checkedStudent;
+            }
+        }
+    }
+    
+    // getting subject picklist values dynamically using Schema functionality
+    public List<SelectOption> getSubjectList(){
+        List<SelectOption> subjectOptions = new List<SelectOption>();
+        Schema.DescribeFieldResult fieldResult = Student__c.Subjects__c.getDescribe();
+        List<Schema.PicklistEntry> ple = fieldResult.getPicklistValues();
+        
+        subjectOptions.add(new SelectOption('','--none--'));
+        for(Schema.PicklistEntry schemaObject : ple){
+            subjectOptions.add(new SelectOption(schemaObject.getLabel(), schemaObject.getValue()));
+        }
+        return subjectOptions;
+    }
+    
+    // wrapper class
+    class StudentSubjectWrapper{
+        public Student__c studentObject{get; set;}
+        public Boolean isSelected{get; set;}
+        
+        public StudentSubjectWrapper(Student__c studentObject){
+            this.studentObject = studentObject;
+            isSelected = false;
+        }
+    }
+}
