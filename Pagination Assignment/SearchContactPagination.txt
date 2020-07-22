@@ -1,0 +1,61 @@
+<apex:page controller="SearchContactPaginationController">
+    <apex:form id="mainForm">
+        <apex:sectionHeader title="Contacts" subTitle="Search"/>
+        
+        <apex:pageBlock>
+            <apex:outputText value="Search"/>&nbsp;&nbsp;
+            <apex:inputText value="{!searchInput}"/>&nbsp;&nbsp;
+            <apex:commandButton value="Search" action="{!search}"/><br/><br/>
+            
+            <apex:outputText value="Select Type"/>&nbsp;&nbsp;
+            
+            <apex:selectList value="{!selectedOption}" multiselect="false" size="1">
+                <apex:selectOptions value="{!picklistOption}"/>
+            </apex:selectList>&nbsp;&nbsp;
+            
+            <apex:commandButton value="Save" action="{!save}"/>
+            <div style="float:right">
+                <apex:outputText value="Page Size"/>&nbsp;&nbsp;
+                
+                <apex:selectList size="1" multiselect="false" value="{!pageSize}" >
+                    <apex:actionSupport event="onchange" action="{!displayRecords}"/>
+                    <apex:selectOption itemValue="5" itemLabel="5"/>
+                    <apex:selectOption itemValue="10" itemLabel="10"/>
+                    <apex:selectOption itemValue="15" itemLabel="15"/>
+                    <apex:selectOption itemValue="20" itemLabel="20"/>
+                </apex:selectList>
+            </div>
+            
+        </apex:pageBlock>
+        
+        <apex:pageBlock>
+            <apex:pageBlockTable value="{!wrapperList}" var="wrapperItems" id="mainDisplay">
+                
+                <apex:column headerValue="Action">
+                    <apex:inputCheckbox value="{!wrapperItems.isSelected}"/>
+                </apex:column>
+                
+                <apex:column value="{!wrapperItems.contactObject.name}"/>
+                <apex:column value="{!wrapperItems.contactObject.email}"/>
+                <apex:column value="{!wrapperItems.contactObject.account.name}"/>
+                <apex:column value="{!wrapperItems.contactObject.phone}"/>
+                <apex:column value="{!wrapperItems.contactObject.type__c}"/>
+                
+                <apex:column headerValue="Details">
+                    <apex:outputText>--</apex:outputText>
+                </apex:column>
+            </apex:pageBlockTable>
+            
+            
+            <div style="float:right">
+                <apex:commandButton value="|<" action="{!first}" disabled="{!DisableAtFirst}"/>&nbsp;&nbsp;
+                <apex:commandButton value="<"  action="{!previous}" disabled="{!DisableAtFirst}"/>&nbsp;&nbsp;
+                <apex:commandButton value=">"  action="{!next}" disabled="{!DisableAtLast}"/>&nbsp;&nbsp;
+                <apex:commandButton value=">|" action="{!last}" disabled="{!DisableAtLast}"/>&nbsp;&nbsp;
+            </div>
+            
+            
+        </apex:pageBlock>
+        
+    </apex:form>
+</apex:page>

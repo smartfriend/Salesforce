@@ -1,0 +1,126 @@
+public class SearchContactPaginationController {
+    
+    // instance variables
+    public String searchInput{get;set;}
+    public String selectedOption{get; set;}
+    public Integer pageSize{get; set;}
+    private Integer totalRecords{get; set;}
+    private Integer indexAt = 0;
+    public List<ContactWrapper> wrapperList{get;set;}
+    public List<Contact> contactList{get;set;}
+    
+    // constructor
+    public SearchContactPaginationController(){
+        pageSize = 5;
+        totalRecords = [Select Count() from Contact];
+        //indexAt = 0;
+        wrapperList = new List<ContactWrapper>();
+        search();
+    }
+    
+    // search method
+    public void search(){
+        wrapperList.clear();
+        
+        if(searchInput != null && searchInput != ''){
+            indexAt = 0;
+            String temp = '%' +searchInput+ '%';
+            contactList = [Select Name, Email, Account.Name, Phone, Type__c From Contact Where Name Like :temp Limit :pageSize Offset :indexAt];
+            
+        }else{
+            contactList = [Select Name, Email, Account.Name, Phone, Type__c From Contact Limit :pageSize Offset :indexAt];
+            
+        }
+        for(Contact con : contactList){
+            wrapperList.add(new ContactWrapper(con));
+        }
+    }
+    
+    // save method
+    public void save(){
+        
+        List<Contact> checkedRecords = new List<Contact>();
+        
+        for(ContactWrapper conWrapper: wrapperList){
+            if(conWrapper.isSelected == true){
+                conWrapper.contactObject.Type__c = selectedOption;
+                checkedRecords.add(conWrapper.contactObject);
+            }
+            if(checkedRecords.size() > 0){
+                update checkedRecords;
+            }
+        }
+    }
+    
+    // records display limit method
+    public void displayRecords(){
+        indexAt = 0;
+        search();
+    }
+    
+    // pagination method to go to first page of records
+    public void first(){
+        indexAt = 0;
+        search();
+    }
+    public void previous(){
+        
+        indexAt = indexAt - pageSize;
+        search();
+    }
+    public void next(){
+        indexAt = indexAt + pageSize;
+        search();
+        
+    }
+    public void last(){
+            indexAt = totalRecords - math.mod(totalRecords, pageSize);
+            indexAt -= pageSize;
+            search();
+    }
+    
+    public Boolean getDisableAtFirst(){
+        if(indexAt == 0 || contactList.size() < pageSize){
+            return true;
+        }else{
+            return false;
+        }
+    } 
+    public Boolean getDisableAtLast(){
+        System.debug(indexAt);
+        System.debug(pageSize);
+        System.debug(totalRecords);
+        if((indexAt + pageSize) >= totalRecords){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    
+    // method to return picklist values from object(db)
+    public List<SelectOption> getPicklistOption(){
+        List<SelectOption> pickOption = new List<SelectOption>();
+        Schema.DescribeFieldResult fieldResult = Contact.Type__c.getDescribe();
+        
+        List<Schema.PicklistEntry> ple = fieldResult.getPicklistValues();
+        pickOption.add(new SelectOption('','--options--'));
+        for(Schema.PicklistEntry f : ple){
+            pickOption.add(new SelectOption(f.getLabel(), f.getValue()));
+        }
+        return pickOption;
+    }
+    
+    class ContactWrapper{
+        
+        // class variables
+        public Contact contactObject{get;set;}
+        public Boolean isSelected{get;set;}
+        
+        // constructor
+        public ContactWrapper(Contact contactObject){
+            this.contactObject = contactObject;
+            isSelected = false;
+        }
+    }
+}
