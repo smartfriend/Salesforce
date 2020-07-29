@@ -1,0 +1,160 @@
+public class SearchContactPaginationController {
+    
+    // instance variables
+    public String searchInput{get;set;}
+    public String selectedOption{get; set;}
+    public Integer pageSize{get; set;}
+    private Integer totalRecords{get; set;}
+    public Integer indexAt{get;set;}
+    public List<ContactWrapper> wrapperList{get;set;}
+    public List<Contact> contactList{get;set;}
+    public String sortDirection{get;set;}
+    public String sortExpression{get;set;}
+    
+    // constructor
+    public SearchContactPaginationController(){
+        
+        totalRecords = [Select Count() from Contact];
+        pageSize = 5;
+        indexAt = 0;
+        wrapperList = new List<ContactWrapper>();
+        sortDirection = 'ASC';
+        sortExpression = 'Name';
+        search();
+    }
+    
+    // search method
+    public void search(){
+        
+        // emptying wrapperlist everytime we change the page size
+        wrapperList.clear();
+        String orderQuery = '';
+        
+        // checking the order of columns (Ascending or Descending)
+        if(sortExpression == null || sortExpression == ''){
+            sortDirection = 'ASC';
+        }else{
+            sortDirection = (sortDirection == 'ASC') ? 'DESC' : 'ASC';
+        }
+        
+        // checking for search input
+        String temp = '%' +searchInput+ '%';
+        if(searchInput != null && searchInput != ''){
+            orderQuery = 'SELECT Name,Email,Account.Name, Phone, Type__c from Contact Where Name Like\'' + temp + '\' Order By '+ sortExpression + ' ' +sortDirection+ ' LIMIT '+ pageSize;
+            	
+        }else{
+            orderQuery = 'SELECT Name,Email,Account.Name, Phone, Type__c from Contact Order By '+ sortExpression + ' ' +sortDirection+ ' LIMIT '+ pageSize;
+            totalRecords = [Select count() From Contact];
+            //totalRecords = Database.query(orderQuery).size();
+            System.debug(totalRecords);
+        }
+        if(indexAt > 0){
+                orderQuery += ' Offset ' +indexAt;
+            }
+        
+        // filling wrapper list with sorted data
+        for(Contact con : Database.query(orderQuery)){
+            wrapperList.add(new ContactWrapper(con));
+        }
+        
+    }
+    
+    // save method
+    public void save(){
+        
+        List<Contact> checkedRecords = new List<Contact>();
+        
+        for(ContactWrapper conWrapper: wrapperList){
+            if(conWrapper.isSelected == true){
+                conWrapper.contactObject.Type__c = selectedOption;
+                checkedRecords.add(conWrapper.contactObject);
+            }
+        }
+        if(checkedRecords.size() > 0){
+            update checkedRecords;
+        }
+    }
+    
+    // records display limit method - runs everytime we change the size of the records to display
+    public void displayRecords(){
+        indexAt = 0;
+        search();
+    }
+    
+    // pagination method to go to the first page of records
+    public void first(){
+        indexAt = 0;
+        search();
+    }
+    // pagination method to go to the next page of records
+    public void next(){
+        indexAt = indexAt + pageSize;
+        search();
+        
+        
+    }
+    
+    // pagination method to go to the previous page of records
+    public void previous(){
+        
+        indexAt = indexAt - pageSize;
+           search();
+           
+            
+    }
+    
+    // pagination method to go to the last page of records
+    public void last(){
+        indexAt = totalRecords - pageSize;
+        search();
+        
+    }
+    
+    // disables first and previous buttons if records index is at the first record
+    public Boolean getDisableAtFirst(){
+        if(indexAt <= 0){
+            return true;
+        }else{
+            return false;
+        }
+    } 
+    
+    // disables last and next buttons if records index is at the last record
+    public Boolean getDisableAtLast(){
+        System.debug(indexAt +' '+pageSize+' '+totalRecords);
+        if(indexAt + pageSize >= totalRecords){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    // method to return picklist values from object(db)
+    public List<SelectOption> getPicklistOption(){
+        List<SelectOption> pickOption = new List<SelectOption>();
+        Schema.DescribeFieldResult fieldResult = Contact.Type__c.getDescribe();
+        
+        List<Schema.PicklistEntry> ple = fieldResult.getPicklistValues();
+        pickOption.add(new SelectOption('','--options--'));
+        for(Schema.PicklistEntry f : ple){
+            pickOption.add(new SelectOption(f.getLabel(), f.getValue()));
+        }
+        return pickOption;
+    }
+    
+    // public void sortExpression(){}
+    public void viewData(){}
+    
+    class ContactWrapper{
+        
+        // class variables
+        public Contact contactObject{get;set;}
+        public Boolean isSelected{get;set;}
+        
+        // constructor
+        public ContactWrapper(Contact contactObject){
+            this.contactObject = contactObject;
+            isSelected = false;
+        }
+    }
+}

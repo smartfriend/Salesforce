@@ -1,0 +1,98 @@
+<!-- Pagination and Cloumn Sorting Assignment (Contact Search Version 3) -->
+
+<apex:page controller="SearchContactPaginationController" tabStyle="Search_Contact_V3__tab">
+    <apex:form id="mainForm">
+        <apex:sectionHeader title="Contacts" subTitle="Search"/>
+        
+        <!-- Search, Type and Page Size controls -->
+        <apex:pageBlock >
+            <apex:outputText value="Search"/>&nbsp;&nbsp;
+            <apex:inputText value="{!searchInput}"/>&nbsp;&nbsp;
+            <apex:commandButton value="Search" action="{!search}"/><br/><br/>
+            
+            <apex:outputText value="Select Type"/>&nbsp;&nbsp;
+            
+            <apex:selectList value="{!selectedOption}" multiselect="false" size="1">
+                <apex:selectOptions value="{!picklistOption}"/>
+            </apex:selectList>&nbsp;&nbsp;
+            
+            <apex:commandButton value="Save" action="{!save}"/>
+            <div style="float:right">
+                <apex:outputText value="Page Size"/>&nbsp;&nbsp;
+                
+                <apex:selectList size="1" multiselect="false" value="{!pageSize}" >
+                    <apex:actionSupport event="onchange" action="{!displayRecords}"/>
+                    <apex:selectOption itemValue="5" itemLabel="5"/>
+                    <apex:selectOption itemValue="10" itemLabel="10"/>
+                    <apex:selectOption itemValue="15" itemLabel="15"/>
+                    <apex:selectOption itemValue="20" itemLabel="20"/>
+                </apex:selectList>
+            </div>
+            
+        </apex:pageBlock>
+        
+        <!-- Records Table -->
+        <apex:pageBlock >
+            <apex:pageBlockTable value="{!wrapperList}" var="wrapperItems" id="mainDisplay">
+                
+                <apex:column headerValue="Action">
+                    <apex:inputCheckbox value="{!wrapperItems.isSelected}"/>
+                </apex:column>
+                
+                <apex:column value="{!wrapperItems.contactObject.name}">
+                    <apex:facet name="header">
+                        <apex:commandLink action="{!search}" value="Name{!IF(sortExpression=='Name',IF(sortDirection='ASC','▼','▲'),'')}">
+                            <apex:param value="Name" name="column" assignTo="{!sortExpression}" ></apex:param>
+                        </apex:commandLink>
+                    </apex:facet>
+                </apex:column>
+                
+                <apex:column value="{!wrapperItems.contactObject.email}">
+                    <apex:facet name="header">
+                        <apex:commandLink action="{!search}" value="Email{!IF(sortExpression=='Email',IF(sortDirection='ASC','▼','▲'),'')}">
+                            <apex:param value="Email" name="column" assignTo="{!sortExpression}" ></apex:param>
+                        </apex:commandLink>
+                    </apex:facet>
+                </apex:column>
+                
+                <apex:column value="{!wrapperItems.contactObject.account.name}">
+                    <apex:facet name="header">
+                        <apex:commandLink action="{!search}" value="Account Name{!IF(sortExpression=='Account.Name',IF(sortDirection='ASC','▼','▲'),'')}">
+                            <apex:param value="Account.Name" name="column" assignTo="{!sortExpression}" ></apex:param>
+                        </apex:commandLink>
+                    </apex:facet>
+                </apex:column>
+                
+                <apex:column value="{!wrapperItems.contactObject.phone}">
+                      <apex:facet name="header">
+                        <apex:commandLink action="{!search}" value="Phone{!IF(sortExpression=='Phone',IF(sortDirection='ASC','▼','▲'),'')}">
+                            <apex:param value="Phone" name="column" assignTo="{!sortExpression}" ></apex:param>
+                        </apex:commandLink>
+                    </apex:facet>
+                </apex:column>
+                <apex:column value="{!wrapperItems.contactObject.Type__c}">
+                      <apex:facet name="header">
+                        <apex:commandLink action="{!search}" value="Type{!IF(sortExpression=='Type__c',IF(sortDirection='ASC','▼','▲'),'')}">
+                            <apex:param value="Type__c" name="column" assignTo="{!sortExpression}" ></apex:param>
+                        </apex:commandLink>
+                    </apex:facet>
+                </apex:column>
+                
+                <apex:column headerValue="Details">
+                   <apex:outputText >Test</apex:outputText>
+                </apex:column>
+            </apex:pageBlockTable>
+            
+            <!-- Page Navigation Buttons -->
+            <div style="float:right">
+                <apex:commandButton value="|<" action="{!first}" disabled="{!DisableAtFirst}"/>&nbsp;&nbsp;
+                <apex:commandButton value="<"  action="{!previous}" disabled="{!DisableAtFirst}"/>&nbsp;&nbsp;
+                <apex:commandButton value=">"  action="{!next}" disabled="{!DisableAtLast}" />&nbsp;&nbsp;
+                <apex:commandButton value=">|" action="{!last}" disabled="{!DisableAtLast}"/>&nbsp;&nbsp;
+            </div>
+            
+            
+        </apex:pageBlock>
+        
+    </apex:form>
+</apex:page>
